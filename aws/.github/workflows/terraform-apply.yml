@@ -1,0 +1,34 @@
+name: terraform-apply
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+permissions:
+  id-token: write
+  contents: read
+jobs:
+  apply:
+    strategy:
+      matrix:
+        env: [dev, prod]
+    runs-on: ubuntu-latest
+    environment: ${{ matrix.env }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.5
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: eu-central-1
+      - name: Ensure terraform.tfvars exists
+        working-directory: aws/envs/${{ matrix.env }}
+        run: test -f terraform.tfvars || (echo "Missing terraform.tfvars in aws/envs/${{ matrix.env }}"; exit 1)
+      - name: Init
+        working-directory: aws/envs/${{ matrix.env }}
+        run: terraform init -backend-config=backend.hcl
+      - name: Apply
+        working-directory: aws/envs/${{ matrix.env }}
+        run: terraform apply -auto-approve
