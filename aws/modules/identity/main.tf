@@ -13,3 +13,5 @@ resource "aws_iam_role" "app" {
   name               = "${var.name_prefix}-${var.environment}-app-role"
   assume_role_policy = data.aws_iam_policy_document.assume_ec2.json
 }
+
+
