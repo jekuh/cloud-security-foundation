@@ -6,6 +6,8 @@ ENV_DIR := envs/$(ENV)
 AWS_REGION ?= eu-central-1
 STATE_BUCKET ?= mb-terraform-state-2026
 LOCK_TABLE ?= terraform-locks
+GITHUB_ORG=jekuh
+GITHUB_REPO=cloud-security-foundation
 
 .PHONY: fmt init validate plan apply destroy output tflint tfsec pr-check clean bootstrap-state bootstrap-oidc
 
