@@ -1,0 +1,52 @@
+name: terraform-pr
+on:
+  pull_request:
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+jobs:
+  plan:
+    strategy:
+      matrix:
+        env: [dev, prod]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.5
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{secrets.AWS_ROLE_TO_ASSUME}}
+          aws-region: eu-central-1
+      - name: Install tflint + tfsec
+        run: |
+          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+          curl -sSL https://github.com/aquasecurity/tfsec/releases/latest/download/tfsec-linux-amd64 -o tfsec
+          chmod +x tfsec
+          sudo mv tfsec /usr/local/bin/tfsec
+      - name: Terraform fmt
+        working-directory: aws
+        run: terraform fmt -check -recursive
+      - name: Ensure terraform.tfvars exists
+        working-directory: aws/envs/${{ matrix.env }}
+        run: test -f terraform.tfvars || (echo "Missing terraform.tfvars in aws/envs/${{ matrix.env }}"; exit 1)
+      - name: Init
+        working-directory: aws/envs/${{ matrix.env }}
+        run: terraform init -backend-config=backend.hcl
+      - name: Validate
+        working-directory: aws/envs/${{ matrix.env }}
+        run: terraform validate
+      - name: TFLint
+        working-directory: aws
+        run: |
+          tflint --init
+          tflint -f compact
+      - name: tfsec
+        working-directory: aws
+        run: tfsec .
+      - name: Plan
+        working-directory: aws/envs/${{ matrix.env }}
+        run: terraform plan -no-color
