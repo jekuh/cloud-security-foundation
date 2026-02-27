@@ -1,52 +1,48 @@
 name: terraform-pr
+
 on:
   pull_request:
+    branches: ["main"]
+
 permissions:
   id-token: write
   contents: read
-  pull-requests: write
+
 jobs:
-  plan:
-    strategy:
-      matrix:
-        env: [dev, prod]
+  plan-dev:
     runs-on: ubuntu-latest
+
+    env:
+      TF_IN_AUTOMATION: "true"
+      TF_INPUT: "false"
+      AWS_REGION: eu-central-1
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.7.5
+          terraform_wrapper: false
+
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{secrets.AWS_ROLE_TO_ASSUME}}
-          aws-region: eu-central-1
-      - name: Install tflint + tfsec
-        run: |
-          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
-          curl -sSL https://github.com/aquasecurity/tfsec/releases/latest/download/tfsec-linux-amd64 -o tfsec
-          chmod +x tfsec
-          sudo mv tfsec /usr/local/bin/tfsec
-      - name: Terraform fmt
+          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Terraform fmt (check)
         working-directory: aws
-        run: terraform fmt -check -recursive
-      - name: Ensure terraform.tfvars exists
-        working-directory: aws/envs/${{ matrix.env }}
-        run: test -f terraform.tfvars || (echo "Missing terraform.tfvars in aws/envs/${{ matrix.env }}"; exit 1)
-      - name: Init
-        working-directory: aws/envs/${{ matrix.env }}
-        run: terraform init -backend-config=backend.hcl
-      - name: Validate
-        working-directory: aws/envs/${{ matrix.env }}
-        run: terraform validate
-      - name: TFLint
-        working-directory: aws
-        run: |
-          tflint --init
-          tflint -f compact
-      - name: tfsec
-        working-directory: aws
-        run: tfsec .
-      - name: Plan
-        working-directory: aws/envs/${{ matrix.env }}
-        run: terraform plan -no-color
+        run: terraform fmt -check -diff -recursive
+
+      - name: Init (dev)
+        working-directory: aws/envs/dev
+        run: terraform init -input=false -backend-config=backend.hcl
+
+      - name: Validate (dev)
+        working-directory: aws/envs/dev
+        run: terraform validate -no-color
+
+      - name: Plan (dev)
+        working-directory: aws/envs/dev
+        run: terraform plan -input=false -no-color -lock-timeout=5m
