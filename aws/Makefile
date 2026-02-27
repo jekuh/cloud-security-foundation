@@ -64,3 +64,7 @@ bootstrap-oidc:
 		-var="github_repo=$(GITHUB_REPO)" \
 		-var="state_bucket_name=$(STATE_BUCKET)" \
 		-var="lock_table_name=$(LOCK_TABLE)"
+
+
+hello:
+	echo "Hello World !!!"
