@@ -1,45 +1,82 @@
 # AWS Secure Foundation (MVP)
 
-## Completed today
-- Remote state bootstrap: **S3 backend + DynamoDB locking**
-- Terraform structure: `environments/dev`, `environments/prod`, reusable `modules/`
-- Networking: dedicated **VPC + public subnet + IGW + routes** (no default VPC dependency)
-- Deployed in `dev`:
-  - IAM role
-  - S3 app bucket (public access blocked, versioning + encryption enabled)
-  - CloudWatch log group
-  - EC2 instance (IMDSv2 required, root volume encrypted)
-- Local workflow: Makefile targets
-- Security checks: `tflint`, `tfsec`
+A production-style AWS foundation built using Terraform and secure CI/CD practices.
 
-## Quick start (local)
+This environment implements a secure-by-default infrastructure baseline with Dev → Prod promotion workflow.
 
-### 1) Bootstrap remote state (run once)
+---
+
+## Architecture Overview
+
+### Environments
+- `envs/dev`
+- `envs/prod`
+
+Each environment:
+- Has its own remote state
+- Uses separate Terraform state keys
+- Is promoted via CI/CD
+
+---
+
+## Infrastructure Components (Dev)
+
+- Dedicated VPC
+- Public subnet + Internet Gateway
+- Route tables
+- IAM role
+- S3 application bucket
+  - Versioning enabled
+  - Encryption enabled
+  - Public access blocked
+- CloudWatch log group
+- EC2 instance
+  - IMDSv2 enforced
+  - Root volume encrypted
+
+---
+
+## Remote State
+
+- S3 backend
+- DynamoDB state locking
+- Separate state keys per environment
+- Encryption enabled
+
+---
+
+## CI/CD Pipeline
+
+### terraform-pr (Pull Request)
+- fmt
+- validate
+- plan (dev only)
+- tflint
+- tfsec
+
+No infrastructure is modified.
+
+---
+
+### terraform-apply (Merge to main)
+
+1. Automatically applies changes to **dev**
+2. Requires manual approval to apply **prod**
+
+Authentication uses:
+- GitHub OIDC → AWS IAM Role
+- No long-lived AWS credentials
+
+---
+
+## Quick Start (Local)
+
+### 1) Bootstrap Remote State (run once)
+
 From `aws/`:
-```bash
-make bootstrap-state STATE_BUCKET=mb-terraform-state-2026 AWS_REGION=eu-central-1 LOCK_TABLE=terraform-locks
-```
 
-Update `environments/dev/backend.hcl` and `environments/prod/backend.hcl`:
-- replace `REPLACE_WITH_YOUR_BUCKET` with your bucket name
-
-### 2) Deploy dev
 ```bash
-make init
-make plan
-make apply
-make output
-```
-
-### 3) Cleanup / cost
-```bash
-make destroy
-```
-
-## CI/CD (next)
-1) Create OIDC role:
-```bash
-make bootstrap-oidc GITHUB_ORG=<org|user> GITHUB_REPO=<repo> STATE_BUCKET=<bucket>
-```
-2) Add GitHub secret: `AWS_ROLE_TO_ASSUME`
-3) Create GitHub Environments: `dev` and `prod` with required reviewers
+make bootstrap-state \
+  STATE_BUCKET=mb-terraform-state-2026 \
+  AWS_REGION=eu-central-1 \
+  LOCK_TABLE=terraform-locks
