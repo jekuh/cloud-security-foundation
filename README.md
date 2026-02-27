@@ -14,3 +14,5 @@ Choose a cloud folder and follow its README:
 - `aws/README.md`
 - `azure/README.md`
 - `gcp/README.md`
+
+CI test: trigger terraform-pr workflow
