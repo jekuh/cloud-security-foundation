@@ -5,3 +5,4 @@
 **/tfplan
 **/*.tfvars.local
 .DS_Store
+.vscode/
