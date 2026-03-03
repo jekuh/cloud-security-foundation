@@ -13,3 +13,5 @@ Each cloud follows the same pattern:
 CI/CD:
 - PR: fmt + validate + tflint + tfsec + plan
 - main: apply with GitHub Environment approvals
+
+
