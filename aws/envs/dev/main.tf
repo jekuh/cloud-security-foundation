@@ -23,10 +23,8 @@ module "network" {
 }
 
 module "servers" {
-  source             = "../../modules/servers"
-  environment        = var.environment
-  name_prefix        = var.name_prefix
-  vpc_id             = module.network.vpc_id
-  public_subnet_ids  = module.network.public_subnet_ids
-  private_subnet_ids = module.network.private_subnet_ids
+  source      = "../../modules/servers"
+  environment = var.environment
+  name_prefix = var.name_prefix
+  vpc_id      = module.network.vpc_id
 }

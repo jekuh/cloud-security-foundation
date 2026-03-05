@@ -1,9 +1,5 @@
 output "app_role_name" { value = module.identity.app_role_name }
 output "app_bucket_name" { value = module.storage.app_bucket_name }
 output "log_group_name" { value = module.monitoring.app_log_group_name }
-output "instance_ids" { value = module.servers.instance_ids }
-output "instance_public_ips" { value = module.servers.instance_public_ips }
-output "instance_private_ips" { value = module.servers.instance_private_ips }
 output "vpc_id" { value = module.network.vpc_id }
-output "public_subnet_ids" { value = module.network.public_subnet_ids }
-output "private_subnet_ids" { value = module.network.private_subnet_ids }
+
