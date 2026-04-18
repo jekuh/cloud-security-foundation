@@ -140,6 +140,16 @@ make output ENV=dev
 make destroy ENV=dev
 ```
 
+## GitHub Actions Workflow Model
+
+The repository-level Terraform workflows are manual for GCP as well:
+
+- `terraform-plan`
+- `terraform-apply`
+- `terraform-destroy`
+
+Each run is started with `workflow_dispatch`, selects `gcp` plus the target environment, and then waits for GitHub Environment approval before running.
+
 ## Example Outputs
 
 A successful `dev` apply should produce outputs similar to:

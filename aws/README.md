@@ -47,21 +47,13 @@ Each environment:
 
 ## CI/CD Pipeline
 
-### terraform-pr (Pull Request)
-- fmt
-- validate
-- plan (dev only)
-- tflint
-- tfsec
+Terraform for AWS is executed through manual GitHub Actions workflows:
 
-No infrastructure is modified.
+- `terraform-plan`
+- `terraform-apply`
+- `terraform-destroy`
 
----
-
-### terraform-apply (Merge to main)
-
-1. Automatically applies changes to **dev**
-2. Requires manual approval to apply **prod**
+Each workflow run selects the target cloud and environment, then waits for GitHub Environment approval before execution.
 
 Authentication uses:
 - GitHub OIDC → AWS IAM Role

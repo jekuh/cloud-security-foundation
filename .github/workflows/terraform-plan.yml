@@ -1,4 +1,4 @@
-name: terraform-destroy
+name: terraform-plan
 
 on:
   workflow_dispatch:
@@ -23,12 +23,12 @@ permissions:
   contents: read
 
 env:
-  AWS_REGION: eu-central-1
   TF_IN_AUTOMATION: "true"
   TF_INPUT: "false"
+  AWS_REGION: eu-central-1
 
 jobs:
-  destroy:
+  plan:
     runs-on: ubuntu-latest
     environment:
       name: ${{ inputs.cloud }}-${{ inputs.target_env }}
@@ -55,10 +55,18 @@ jobs:
           workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ vars.GCP_SERVICE_ACCOUNT_EMAIL }}
 
+      - name: Terraform fmt (check)
+        working-directory: ${{ inputs.cloud }}
+        run: terraform fmt -check -diff -recursive
+
       - name: Init
         working-directory: ${{ inputs.cloud }}/envs/${{ inputs.target_env }}
         run: terraform init -input=false -backend-config=backend.hcl
 
-      - name: Destroy
+      - name: Validate
         working-directory: ${{ inputs.cloud }}/envs/${{ inputs.target_env }}
-        run: terraform destroy -input=false -auto-approve
+        run: terraform validate -no-color
+
+      - name: Plan
+        working-directory: ${{ inputs.cloud }}/envs/${{ inputs.target_env }}
+        run: terraform plan -input=false -no-color -lock-timeout=5m

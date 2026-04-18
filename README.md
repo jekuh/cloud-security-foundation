@@ -55,20 +55,13 @@ Each cloud follows the same high-level pattern:
 
 ## CI/CD Pattern
 
-### Pull Request
+Terraform operations are manually started through GitHub Actions `workflow_dispatch`.
 
-- `terraform fmt`
-- `terraform validate`
-- `terraform plan` for `dev`
-- `tflint`
-- `tfsec`
+- `terraform-plan`
+- `terraform-apply`
+- `terraform-destroy`
 
-No infrastructure is changed during PR validation.
-
-### Merge To `main`
-
-1. Apply `dev`
-2. Gate `prod` behind approval
+Each run now requires GitHub Environment approval before it can operate on a target cloud and environment.
 
 The intended authentication model is OIDC or workload federation rather than static credentials.
 

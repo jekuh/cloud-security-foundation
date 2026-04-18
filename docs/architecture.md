@@ -34,18 +34,13 @@ The GCP implementation currently includes:
 
 ## CI/CD Pattern
 
-### Pull Requests
+Terraform execution is manual and approval-gated:
 
-- `terraform fmt`
-- `terraform validate`
-- `terraform plan` for `dev`
-- `tflint`
-- `tfsec`
+- `terraform-plan`
+- `terraform-apply`
+- `terraform-destroy`
 
-### Merge To Main
-
-- apply `dev`
-- gate `prod` behind approval
+Each workflow is launched with `workflow_dispatch`, selects a cloud and environment, and is held behind a GitHub Environment approval gate.
 
 ## Design Intent
 
