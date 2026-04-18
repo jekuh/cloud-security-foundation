@@ -5,6 +5,11 @@ module "identity" {
   project_id  = var.project_id
 }
 
+module "project_services" {
+  source     = "../../modules/project_services"
+  project_id = var.project_id
+}
+
 module "storage" {
   source      = "../../modules/storage"
   environment = var.environment
@@ -17,6 +22,8 @@ module "monitoring" {
   environment = var.environment
   name_prefix = var.name_prefix
   project_id  = var.project_id
+
+  depends_on = [module.project_services]
 }
 
 module "network" {
@@ -25,6 +32,8 @@ module "network" {
   name_prefix = var.name_prefix
   project_id  = var.project_id
   region      = var.region
+
+  depends_on = [module.project_services]
 }
 
 module "compute" {
@@ -35,6 +44,8 @@ module "compute" {
   region      = var.region
   vpc_id      = module.network.vpc_id
   subnet_id   = module.network.public_subnet_id
+
+  depends_on = [module.project_services]
 }
 
 module "servers" {
@@ -45,4 +56,6 @@ module "servers" {
   region      = var.region
   vpc_id      = module.network.vpc_id
   subnet_id   = module.network.public_subnet_id
+
+  depends_on = [module.project_services]
 }

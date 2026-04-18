@@ -1,20 +1,21 @@
 # Roadmap
 
-## AWS (near-term)
-- Reduce tfsec findings further (flow logs, logging, CMK, etc.)
-- Tighten GitHub OIDC role to least privilege
-- Add PR plan comments + path filters
+## AWS
 
-## Azure
-- Storage backend bootstrap
-- Entra ID OIDC bootstrap
-- Implement same 4 modules + dev/prod
+- reduce remaining tfsec findings
+- tighten GitHub OIDC permissions toward least privilege
+- add PR plan comments and workflow path filters
 
 ## GCP
-- GCS backend bootstrap
-- Workload Identity Federation bootstrap
-- Implement same 4 modules + dev/prod
 
+- restrict SSH access and remove public IPs where not needed
+- add CMEK for more resources, not only optional bucket encryption
+- add VPC flow logs and stronger logging retention controls
+- reduce GitHub Actions service account permissions
+- improve production parity and hardening
 
+## Azure
 
-
+- bootstrap remote state
+- bootstrap Entra ID OIDC for GitHub Actions
+- implement the same environment and module pattern used in AWS and GCP

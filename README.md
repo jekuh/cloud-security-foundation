@@ -1,89 +1,90 @@
 # Cloud Security Foundation
 
-Multi-cloud (AWS / Azure / GCP) **Cloud Security Foundation** built with:
+Multi-cloud cloud security lab built with Terraform across AWS, Azure, and GCP.
 
-- Infrastructure as Code (Terraform)
-- Secure remote state
-- OIDC-based CI/CD (no static credentials)
-- Dev → Prod promotion workflow
-- Security guardrails (linting + scanning)
+The repository is organized so each cloud can stand on its own:
 
-Each cloud is fully independent with its own:
-
-- environment structure
-- reusable modules
-- Makefile automation
-- CI/CD pipelines
-- bootstrap process
-
----
+- reusable Terraform modules
+- `dev` and `prod` environments
+- bootstrap code for remote state and CI/CD identity
+- Makefile-based local workflows
+- shared documentation under `docs/`
 
 ## Repository Layout
 
 | Folder | Description |
 |--------|-------------|
-| `aws/`   | AWS secure foundation (fully implemented) |
-| `azure/` | Azure foundation (scaffold) |
-| `gcp/`   | GCP foundation (scaffold) |
-| `docs/`  | Cross-cloud documentation |
+| `aws/` | AWS secure foundation |
+| `azure/` | Azure foundation scaffold |
+| `gcp/` | GCP secure foundation |
+| `docs/` | Cross-cloud architecture, controls, and learning notes |
 
----
+## Current Status
 
-## CI/CD Architecture (AWS)
+### AWS
 
-### Workflow 1 — terraform-pr
-Trigger: Pull Request  
-Runs:
-- terraform fmt
-- terraform validate
-- terraform plan (dev)
-- security checks (tflint, tfsec)
+- Implemented foundation
+- Remote state bootstrap
+- OIDC-based CI/CD
+- Dev and prod environments
 
-No infrastructure changes are applied.
+### GCP
 
----
+- Implemented foundation
+- GCS remote state bootstrap
+- Workload Identity Federation bootstrap for GitHub Actions
+- Dev and prod environments
+- VPC, subnets, NAT, service accounts, storage, logging, and Compute Engine
 
-### Workflow 2 — terraform-apply
-Trigger: Merge to `main`
+### Azure
 
-1. Automatically applies **dev**
-2. Requires manual approval to apply **prod** (GitHub Environment gate)
+- Structure scaffolded
+- Planned to mirror the AWS and GCP layout
 
-This enforces safe Dev → Prod promotion.
+## Common Design
 
----
+Each cloud follows the same high-level pattern:
 
-## Security Principles
+- `bootstrap/`
+  - state backend
+  - CI/CD identity bootstrap
+- `envs/dev` and `envs/prod`
+  - isolated configuration and state
+- `modules/`
+  - reusable building blocks such as identity, network, compute, storage, and monitoring
 
-- OIDC authentication (no AWS access keys)
-- Separate state for dev/prod
-- S3 backend with DynamoDB locking
-- Encrypted storage by default
-- IMDSv2 required on EC2
-- Public access blocked on S3
-- Terraform validation in CI before merge
-- Branch protection enforced on `main`
+## CI/CD Pattern
 
----
+### Pull Request
+
+- `terraform fmt`
+- `terraform validate`
+- `terraform plan` for `dev`
+- `tflint`
+- `tfsec`
+
+No infrastructure is changed during PR validation.
+
+### Merge To `main`
+
+1. Apply `dev`
+2. Gate `prod` behind approval
+
+The intended authentication model is OIDC or workload federation rather than static credentials.
+
+## Documentation
+
+- [Shared architecture](./docs/architecture.md)
+- [Security controls baseline](./docs/security-controls.md)
+- [Roadmap](./docs/roadmap.md)
+- [GCP from an AWS mindset](./docs/gcp-from-aws.md)
 
 ## Quick Start
 
 Choose a cloud folder and follow its README:
 
-- `aws/README.md`
-- `azure/README.md`
-- `gcp/README.md`
+- [AWS README](./aws/README.md)
+- [Azure README](./azure/README.md)
+- [GCP README](./gcp/README.md)
 
----
-
-## Roadmap
-
-- Ransomware-resilient logging blueprint
-- AWS Backup + Vault Lock
-- GuardDuty + Security Hub
-- Multi-account separation
-- Policy-as-code (OPA / Checkov)
-
----
-
-Built as a production-style Cloud Security Engineering lab.
+Built as a production-style cloud security engineering learning project.

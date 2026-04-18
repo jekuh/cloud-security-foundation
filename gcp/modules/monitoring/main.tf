@@ -19,7 +19,7 @@ resource "google_logging_project_sink" "app" {
 }
 
 resource "google_storage_bucket" "logs" {
-  name          = "${var.name_prefix}-${var.environment}-logs-bucket"
+  name          = "${var.name_prefix}-${var.environment}-${var.project_id}-logs-bucket"
   location      = "US"
   project       = var.project_id
   force_destroy = false

@@ -3,7 +3,7 @@ TF ?= terraform
 ENV ?= dev
 ENV_DIR := envs/$(ENV)
 
-PROJECT_ID ?= REPLACE_PROJECT
+PROJECT_ID ?= cloud-security-test-493702
 REGION ?= us-central1
 STATE_BUCKET ?= mb-terraform-gcp-state-2026
 GITHUB_ORG ?= jekuh
@@ -25,6 +25,9 @@ plan:
 
 apply:
 	cd $(ENV_DIR) && $(TF) apply
+
+state-list:
+	cd $(ENV_DIR) && $(TF) state list
 
 destroy:
 	cd $(ENV_DIR) && $(TF) destroy
@@ -65,3 +68,5 @@ bootstrap-oidc:
 		-var="github_org=$(GITHUB_ORG)" \
 		-var="github_repo=$(GITHUB_REPO)" \
 		-var="service_account_name=github-actions"
+
+

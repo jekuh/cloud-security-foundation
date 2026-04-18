@@ -1,2 +1,2 @@
-bucket = "REPLACE_GCS_BUCKET"
+bucket = "mb-terraform-gcp-state-2026"
 prefix = "gcp/dev"
