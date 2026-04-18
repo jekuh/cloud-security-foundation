@@ -20,8 +20,11 @@ resource "google_storage_bucket" "app" {
     enabled = true
   }
 
-  encryption {
-    default_kms_key_name = var.kms_key_name
+  dynamic "encryption" {
+    for_each = var.kms_key_name != null ? [1] : []
+    content {
+      default_kms_key_name = var.kms_key_name
+    }
   }
 
   public_access_prevention = "enforced"
