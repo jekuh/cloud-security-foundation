@@ -1,4 +1,4 @@
-name: terraform-apply
+name: terraform-destroy
 
 on:
   push:
@@ -15,7 +15,7 @@ env:
   TF_INPUT: "false"
 
 jobs:
-  apply-dev:
+  destroy-dev:
     runs-on: ubuntu-latest
     environment: dev
 
@@ -37,13 +37,13 @@ jobs:
         working-directory: aws/envs/dev
         run: terraform init -input=false -backend-config=backend.hcl
 
-      - name: Apply (dev)
+      - name: destroy (dev)
         working-directory: aws/envs/dev
         run: terraform destroy -input=false -auto-approve
 
-  apply-prod:
+  destroy-prod:
     runs-on: ubuntu-latest
-    needs: apply-dev
+    needs: destroy-dev
     environment: prod  # requires approval in GitHub UI
 
     steps:
